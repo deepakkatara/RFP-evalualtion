@@ -1,5 +1,9 @@
 # Agentic RFP Evaluation and Supplier Ranking
 
+[![Open live Streamlit app](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://rfp-evalualtion-z87z4g7e6beqkslddtsdsi.streamlit.app/)
+
+**🚀 [Open the live RFP Evaluation app](https://rfp-evalualtion-z87z4g7e6beqkslddtsdsi.streamlit.app/)**
+
 A Streamlit application that reads supplier RFP PDFs, obtains criterion-level evidence-grounded LLM scorecards, validates them, and calculates reproducible supplier rankings.
 
 ## Design principle
