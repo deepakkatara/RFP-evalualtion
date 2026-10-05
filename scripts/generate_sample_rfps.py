@@ -1,0 +1,30 @@
+from pathlib import Path
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.lib import colors
+
+OUT = Path(__file__).resolve().parents[1] / "assets" / "rfps"
+REQUEST = "City Services Digital Procurement Platform"
+PROFILES = {
+    "Apex Systems": {"summary": "Apex proposes a secure, scalable API-first procurement platform with an integration layer for ERP and identity systems.", "solution": "Microservice architecture, audited APIs, encrypted data stores, and scalable event processing. The integration plan includes ERP, SSO, and supplier-portal interfaces.", "delivery": "Twenty-four-week implementation with discovery, integration build, security validation, user acceptance testing, and launch. A dedicated solution architect, delivery manager, and security engineer are assigned.", "price": "Total price: $480,000. Assumptions: customer provides ERP sandbox access and identity-provider configuration.", "security": "ISO 27001-aligned controls, role-based access, encryption in transit and at rest, audit logs, quarterly vulnerability reviews, and privacy impact assessment.", "support": "Business-hours support with 4-hour critical response. Three comparable public-sector references are available."},
+    "BrightPath Tech": {"summary": "BrightPath offers a low-cost cloud portal designed for a rapid launch and basic supplier workflow automation.", "solution": "A configurable web portal with CSV import and standard REST APIs. The proposal provides limited detail on enterprise integrations and scalability.", "delivery": "Twelve-week delivery with configuration, pilot, and launch. A small delivery team will be allocated after contract signature.", "price": "Total price: $210,000. Assumptions: two change requests are included; data cleanup and migration are excluded.", "security": "The service uses cloud hosting and standard account passwords. Compliance certifications and audit controls are not specified.", "support": "Email support during business hours. One small commercial reference is listed."},
+    "NexaWorks": {"summary": "NexaWorks proposes a balanced procurement platform with a phased, low-risk implementation and a strong support transition model.", "solution": "Modular architecture integrates with ERP, SSO, and document storage through managed APIs. Capacity planning supports future supplier-volume growth.", "delivery": "Sixteen-week plan: discovery, prototype, integration sprint, migration rehearsal, training, launch, and hypercare. Named project manager, business analyst, integration lead, and change manager.", "price": "Total price: $325,000. Assumptions and optional integrations are itemized, with a fixed implementation fee and transparent annual support charge.", "security": "Role-based access, encryption, audit trails, retention controls, privacy review, and annual penetration testing are included.", "support": "24/7 critical support, customer success reviews, administrator training, and five relevant enterprise references."},
+    "Orbit Digital": {"summary": "Orbit Digital brings extensive delivery experience and a proven support organisation for procurement transformation.", "solution": "The proposal describes configurable workflow screens and a modern cloud service, but the ERP and identity integration approach remains high level and requires discovery.", "delivery": "Eighteen-week delivery with experienced programme leadership, discovery workshops, configuration, testing, and launch milestones.", "price": "Total price: $355,000. Assumptions cover customer availability and training; integration effort is subject to discovery.", "security": "Security controls include encryption, access management, audit logging, privacy processes, and an annual compliance review.", "support": "24/7 support, named service manager, quarterly service reviews, and eight large-client references."},
+}
+
+def build(name, profile):
+    path = OUT / (name.lower().replace(" ", "_") + ".pdf")
+    styles = getSampleStyleSheet(); body = styles["BodyText"]; body.leading = 15
+    story = [Paragraph(f"{name} | Response to {REQUEST}", styles["Title"]), Spacer(1, 18)]
+    for heading, key in [("Executive Summary", "summary"), ("Proposed Solution and Implementation Approach", "solution"), ("Timeline, Team Structure, and Milestones", "delivery")]:
+        story += [Paragraph(heading, styles["Heading2"]), Paragraph(profile[key], body), Spacer(1, 12)]
+    story += [Paragraph("Commercial Proposal", styles["Heading2"]), Paragraph(profile["price"], body), Spacer(1, 12)]
+    story.append(Table([["Item", "Amount"], ["Implementation and launch", profile["price"].split(".")[0].replace("Total price: ", "")], ["Support", "See assumptions above"]], colWidths=[2.8*inch, 2.8*inch], style=TableStyle([("BACKGROUND", (0,0), (-1,0), colors.HexColor("#173A5E")), ("TEXTCOLOR", (0,0), (-1,0), colors.white), ("GRID", (0,0), (-1,-1), .25, colors.grey), ("PADDING", (0,0), (-1,-1), 8)])))
+    story += [PageBreak(), Paragraph("Security, Compliance, and Risk Controls", styles["Heading2"]), Paragraph(profile["security"], body), Spacer(1, 12), Paragraph("Support, Relevant Experience, and References", styles["Heading2"]), Paragraph(profile["support"], body), Spacer(1, 12), Paragraph("Key Assumptions and Risks", styles["Heading2"]), Paragraph("The customer will provide timely decisions, access to required systems, and nominated business representatives. Risks will be reviewed in weekly governance meetings.", body), Spacer(1, 24), Paragraph("End of proposal", styles["Italic"])]
+    SimpleDocTemplate(str(path), pagesize=A4, rightMargin=54, leftMargin=54, topMargin=54, bottomMargin=54, title=f"{name} RFP Response").build(story)
+
+OUT.mkdir(parents=True, exist_ok=True)
+for supplier, profile in PROFILES.items(): build(supplier, profile)
+print(f"Generated {len(PROFILES)} synthetic RFP PDFs in {OUT}")
